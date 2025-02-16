@@ -9,16 +9,8 @@ import (
 
 const prompt = "Pokedex > "
 
-func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print(prompt)
-		scanner.Scan()
-		input := scanner.Text()
-		cleanedInput := cleanInput(input)
-		fmt.Println("Your command was:", cleanedInput[0])
-	}
-}
+var configs = config{"", ""}
+
 func cleanInput(text string) []string {
 	split := strings.Fields(text)
 	for i, word := range split {
@@ -26,4 +18,24 @@ func cleanInput(text string) []string {
 	}
 
 	return split
+}
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	commands := getCommands()
+	for {
+		fmt.Print(prompt)
+		scanner.Scan()
+		input := scanner.Text()
+		cleanedInput := cleanInput(input)
+		firstWord := cleanedInput[0]
+		command, exists := commands[firstWord]
+		if !exists {
+			fmt.Println("Unknown command")
+		} else {
+			err := command.callback(&configs)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }
