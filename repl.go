@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/jather/pokedexcli/internal/pokecache"
 )
 
 func cleanInput(text string) []string {
@@ -15,7 +17,7 @@ func cleanInput(text string) []string {
 
 	return split
 }
-func startRepl(config *config) {
+func startRepl(config *config, cache *pokecache.Cache) {
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
 	for {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jather/pokedexcli/internal/pokeapi"
+	"github.com/jather/pokedexcli/internal/pokecache"
 )
 
 const prompt = "Pokedex > "
@@ -11,5 +12,6 @@ const prompt = "Pokedex > "
 func main() {
 	pokeapiclient := pokeapi.NewHttpClient(time.Second * 5)
 	cfg := &config{httpClient: pokeapiclient}
-	startRepl(cfg)
+	cache := pokecache.NewCache(10 * time.Second)
+	startRepl(cfg, &cache)
 }
