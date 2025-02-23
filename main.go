@@ -10,9 +10,8 @@ import (
 const prompt = "Pokedex > "
 
 func main() {
-	pokeapiclient := pokeapi.NewHttpClient(time.Second * 5)
-	cfg := &config{httpClient: pokeapiclient}
 	cache := pokecache.NewCache(10 * time.Second)
-	cfg.cache = &cache
+	pokeapiclient := pokeapi.NewHttpClient(time.Second*5, &cache)
+	cfg := &config{httpClient: pokeapiclient, pokedex: map[string]pokeapi.PokemonResponse{}}
 	startRepl(cfg)
 }

@@ -5,7 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/jather/pokedexcli/internal/pokeapi"
 )
+
+type config struct {
+	httpClient pokeapi.Client
+	previous   *string
+	next       *string
+	pokedex    map[string]pokeapi.PokemonResponse
+}
 
 func cleanInput(text string) []string {
 	split := strings.Fields(text)
@@ -15,6 +24,7 @@ func cleanInput(text string) []string {
 
 	return split
 }
+
 func startRepl(config *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
