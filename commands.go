@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/jather/pokedexcli/internal/pokeapi"
+	"github.com/jather/pokedexcli/internal/pokecache"
 )
 
 type cliCommand struct {
@@ -17,6 +18,7 @@ type config struct {
 	httpClient pokeapi.Client
 	previous   *string
 	next       *string
+	cache      *pokecache.Cache
 }
 
 func getCommands() map[string]cliCommand {
@@ -64,7 +66,8 @@ func commandMap(cfg *config) error {
 	if cfg.next != nil {
 		url = *cfg.next
 	}
-	response, err := client.GetAreas(url)
+
+	response, err := client.GetAreas(url, cfg.cache)
 	if err != nil {
 		return err
 	}
@@ -73,6 +76,7 @@ func commandMap(cfg *config) error {
 	for _, location := range response.Results {
 		fmt.Println(location.Name)
 	}
+
 	return nil
 }
 
@@ -81,11 +85,10 @@ func commandMapb(cfg *config) error {
 	if cfg.previous == nil {
 		return errors.New("you're on the first page")
 	}
-	response, err := client.GetAreas(*cfg.previous)
+	response, err := client.GetAreas(*cfg.previous, cfg.cache)
 	if err != nil {
 		return err
 	}
-	fmt.Println(response)
 	cfg.next = response.Next
 	cfg.previous = response.Previous
 	for _, location := range response.Results {

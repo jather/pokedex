@@ -13,5 +13,6 @@ func main() {
 	pokeapiclient := pokeapi.NewHttpClient(time.Second * 5)
 	cfg := &config{httpClient: pokeapiclient}
 	cache := pokecache.NewCache(10 * time.Second)
-	startRepl(cfg, &cache)
+	cfg.cache = &cache
+	startRepl(cfg)
 }

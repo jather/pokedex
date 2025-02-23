@@ -14,40 +14,41 @@ type cachedEntry struct {
 	val       []byte
 }
 
-func NewCache(time.Duration) Cache {
+func NewCache(interval time.Duration) Cache {
 	newCache := Cache{
-		mutex: &sync.Mutex{},
+		mutex:  &sync.Mutex{},
+		cached: map[string]cachedEntry{},
 	}
-	newCache.reapLoop()
+	go newCache.reapLoop(interval)
 	return newCache
 
 }
 
-func (c Cache) Add(key string val []byte) {
+func (c Cache) Add(key string, val []byte) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	c.cached[key] = val
+	c.cached[key] = cachedEntry{time.Now(), val}
 }
 func (c Cache) Get(key string) ([]byte, bool) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	if val, ok := c.cached[key]; !ok{
+	entry, ok := c.cached[key]
+	if !ok {
 		return []byte{}, false
 	}
-	return val, true
+	return entry.val, true
 }
 func (c Cache) reapLoop(interval time.Duration) {
-	ticker := time.newTicker(interval)
+	ticker := time.NewTicker(interval)
 	for {
-		select {
-		case t := <-ticker.C:
-		c.mutex.Lock()
-		for key, val := range c.cached {
-			if val.createdAt.Before(time.Now().Add(-interval)) {
-				delete(c.cached, key)
+		for range ticker.C {
+			c.mutex.Lock()
+			for key, val := range c.cached {
+				if val.createdAt.Before(time.Now().Add(-interval)) {
+					delete(c.cached, key)
+				}
 			}
-		}
-		c.mutex.Unlock()
+			c.mutex.Unlock()
 		}
 	}
 }
